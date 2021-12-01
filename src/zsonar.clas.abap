@@ -11,10 +11,20 @@ CLASS zsonar DEFINITION
         measurements TYPE string
       RETURNING
         VALUE(count) TYPE i.
+    METHODS build_windows
+      IMPORTING
+        measurement_list  TYPE string
+      RETURNING
+        VALUE(window_tab) TYPE string_table.
+    METHODS count_increased_win
+      IMPORTING
+        measurements         TYPE string
+      RETURNING
+        VALUE(increased_win) TYPE i.
   PROTECTED SECTION.
   PRIVATE SECTION.
     METHODS get_riddle_input
-     RETURNING VALUE(riddle) type string.
+      RETURNING VALUE(riddle) TYPE string.
 ENDCLASS.
 
 
@@ -30,12 +40,28 @@ CLASS zsonar IMPLEMENTATION.
                            old = measurement ).
   ENDMETHOD.
 
-
+  METHOD count_increased_win.
+    SPLIT measurements AT cl_abap_char_utilities=>newline INTO TABLE DATA(measurement_tab).
+    DATA(win_tab) = build_windows( measurements ).
+    CONCATENATE LINES OF win_tab INTO Data(increased_win_str) SEPARATED BY cl_abap_char_utilities=>newline.
+    increased_win = count_increased( increased_win_str ).
+  ENDMETHOD.
 
   METHOD if_oo_adt_classrun~main.
     DATA(count) = count_increased( get_riddle_input( ) ).
+    data(count_windows) = count_increased_win( get_riddle_input( ) ).
     out->write( |increased measurements: { count }| ).
+    out->write( |increased sliding window measurements: { count_windows }| ).
+  ENDMETHOD.
 
+  METHOD build_windows.
+    SPLIT measurement_list AT cl_abap_char_utilities=>newline INTO TABLE DATA(m_tab).
+
+    WHILE sy-index + 2 <= lines( m_tab ).
+      APPEND m_tab[ sy-index + 0 ] +
+             m_tab[ sy-index + 1 ] +
+             m_tab[ sy-index + 2 ] TO window_tab.
+    ENDWHILE.
   ENDMETHOD.
 
   METHOD get_riddle_input.
@@ -2041,4 +2067,6 @@ CLASS zsonar IMPLEMENTATION.
 |5067\n| &&
 |5068\n|.
   ENDMETHOD.
+
+
 ENDCLASS.
