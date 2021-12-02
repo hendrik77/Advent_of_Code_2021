@@ -43,24 +43,29 @@ CLASS zsonar IMPLEMENTATION.
   METHOD count_increased_win.
     SPLIT measurements AT cl_abap_char_utilities=>newline INTO TABLE DATA(measurement_tab).
     DATA(win_tab) = build_windows( measurements ).
-    CONCATENATE LINES OF win_tab INTO Data(increased_win_str) SEPARATED BY cl_abap_char_utilities=>newline.
+    CONCATENATE LINES OF win_tab INTO DATA(increased_win_str) SEPARATED BY cl_abap_char_utilities=>newline.
     increased_win = count_increased( increased_win_str ).
   ENDMETHOD.
 
   METHOD if_oo_adt_classrun~main.
     DATA(count) = count_increased( get_riddle_input( ) ).
-    data(count_windows) = count_increased_win( get_riddle_input( ) ).
+    DATA(count_windows) = count_increased_win( get_riddle_input( ) ).
     out->write( |increased measurements: { count }| ).
     out->write( |increased sliding window measurements: { count_windows }| ).
   ENDMETHOD.
 
   METHOD build_windows.
     SPLIT measurement_list AT cl_abap_char_utilities=>newline INTO TABLE DATA(m_tab).
-
+    DATA(windows_size) = 3.
     WHILE sy-index + 2 <= lines( m_tab ).
-      APPEND m_tab[ sy-index + 0 ] +
-             m_tab[ sy-index + 1 ] +
-             m_tab[ sy-index + 2 ] TO window_tab.
+*      APPEND m_tab[ sy-index + 0 ] +
+*             m_tab[ sy-index + 1 ] +
+*             m_tab[ sy-index + 2 ] TO window_tab.
+      APPEND REDUCE #(
+       INIT w = 0
+       FOR i = 0 THEN i + 1 WHILE i < windows_size
+       NEXT w = w + m_tab[ sy-index + i ]
+      ) TO window_tab.
     ENDWHILE.
   ENDMETHOD.
 
