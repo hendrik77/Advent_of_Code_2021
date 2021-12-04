@@ -37,10 +37,10 @@ CLASS zsubmarine IMPLEMENTATION.
     ENDLOOP.
   ENDMETHOD.
 
-  METHOD if_oo_adt_classrun~main.
-    dive( new zaoc_helper( )->get_riddle( 2 ) ).
-    out->write( |day 2: { horizontal * depth }| ).
 
+  METHOD if_oo_adt_classrun~main.
+    dive( zaoc_helper=>get_riddle( 2 ) ).
+    out->write( |day 2: { horizontal * depth }| ).
   ENDMETHOD.
 
 ENDCLASS.
