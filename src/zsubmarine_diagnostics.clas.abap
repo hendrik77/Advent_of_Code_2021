@@ -54,7 +54,7 @@ CLASS zsubmarine_diagnostics IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD if_oo_adt_classrun~main.
-    DATA(riddle) = zaoc_helper=>get_riddle( 3 ).
+    DATA(riddle) = zaoc_helper=>get_riddle_table( 3 ).
     out->write( |Day 3 - Part 1: { calc_power_consumption( riddle ) }| ).
     out->write( |Day 3 - Part 2: { calc_life_support_rating( riddle ) }| ).
   ENDMETHOD.
