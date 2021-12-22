@@ -35,6 +35,9 @@ CLASS zbingo_subsystem DEFINITION
     METHODS play
       RETURNING
         VALUE(score) TYPE i.
+    METHODS play_to_loose
+      RETURNING
+        VALUE(score) TYPE i.
   PROTECTED SECTION.
   PRIVATE SECTION.
     DATA numbers TYPE string.
@@ -98,7 +101,7 @@ CLASS zbingo_subsystem IMPLEMENTATION.
 
     "check columns
     DATA bingo_str TYPE string.
-    DATA: x, y TYPE i, i.
+    DATA: x, y TYPE i.
     DO 5 TIMES.
       CLEAR x.
       y += 1.
@@ -147,8 +150,28 @@ CLASS zbingo_subsystem IMPLEMENTATION.
   METHOD if_oo_adt_classrun~main.
     DATA(riddle) = zaoc_helper=>get_riddle_string( 4 ).
     set_bingo( riddle ).
-    DATA(score) = play( ).
-    out->write( |Day 4 - Part 1: { score }| ).
+    out->write( |Day 4 - Part 1: { play( ) }| ).
+    out->write( |Day 4 - Part 1: { play_to_loose( ) }| ).
+  ENDMETHOD.
+
+
+  METHOD play_to_loose.
+    DATA winning_boards TYPE STANDARD TABLE OF i.
+    SPLIT numbers AT ',' INTO TABLE DATA(number_tab).
+    LOOP AT number_tab INTO DATA(number).
+      mark( number ).
+      LOOP AT boards_x ASSIGNING FIELD-SYMBOL(<board_x>).
+        CHECK NOT line_exists( winning_boards[ table_line = sy-tabix ] ).
+        IF check_win( <board_x> ).
+          IF lines( boards_x ) - lines( winning_boards ) = 1.
+            score = calc_score_board( sy-tabix ) * number.
+            return.
+          ELSE.
+            APPEND sy-tabix TO winning_boards.
+          ENDIF.
+        ENDIF.
+      ENDLOOP.
+    ENDLOOP.
   ENDMETHOD.
 
 ENDCLASS.
